@@ -12,10 +12,10 @@ on:
       source_branch:
         description: "Select the source branch"
         required: false
-        default: "openwrt_openwrt-24.10"
+        default: "openwrt_v24.10.7"
         type: choice
         options:
-          - openwrt_openwrt-24.10
+          - openwrt_v24.10.7
       openwrt_board:
         description: "Select device board"
         required: false
@@ -326,7 +326,7 @@ jobs:
         id: set-matrix
         run: |
           if [[ "${{ inputs.source_branch }}" == "all" ]]; then
-            MATRIX='{"include":[{"branch":"openwrt_openwrt-24.10"}]}'
+            MATRIX='{"include":[{"branch":"openwrt_v24.10.7"}]}'
           else
             MATRIX='{"include":[{"branch":"${{ inputs.source_branch }}"}]}'
           fi
@@ -421,6 +421,11 @@ jobs:
           source_branch_input="${{ matrix.branch }}"
           REPO_NAME="${source_branch_input%_*}"
           REPO_BRANCH="${source_branch_input##*_}"
+
+          # 如果目标是 openwrt-24.10 分支，强制将其锁定为官方不可变的 v24.10.7 标签
+          if [[ "${REPO_BRANCH}" == "openwrt-24.10" ]]; then
+              REPO_BRANCH="v24.10.7"
+          fi
 
           # Clone the source code repository
           git clone -q --single-branch --depth=1 --branch=${REPO_BRANCH} ${REPO_URL} openwrt
